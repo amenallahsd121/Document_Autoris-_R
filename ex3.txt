@@ -1,0 +1,64 @@
+# Load necessary library
+library(MASS)
+
+
+# Step 1: Interpretation of r
+# The coefficient r represents the correlation between the components Y1 and Y2 of the vector Y.
+# It measures the linear relationship between these two components. Values of r range from -1 to 1.
+
+
+
+# Step 2(a): Generate n = 10,000 realizations of the independent vector Z = (Z1, Z2)
+n <- 10000
+Z <- mvrnorm(n, mu = c(0, 0), Sigma = diag(2))
+
+
+
+
+# Step 2(b): Calculate the empirical mean of the vector Z
+empirical_mean_Z <- colMeans(Z)
+print(paste("Empirical mean of Z:", empirical_mean_Z))
+
+
+
+# Step 2(c): Check if Z1 and Z2 are uncorrelated (independence check)
+correlation_Z <- cor(Z[, 1], Z[, 2])
+print(paste("Correlation between Z1 and Z2:", correlation_Z))
+
+
+
+# Scatterplot to visualize independence
+plot(Z[, 1], Z[, 2], main = "Scatterplot of Z1 vs Z2",
+     xlab = "Z1", ylab = "Z2", col = "blue", pch = 16)
+
+
+
+# Step 3: Fix r = 0.85 and construct matrix A such that Σ = A * t(A)
+r <- 0.85
+Sigma <- matrix(c(2, r, r, 2), nrow = 2)
+A <- chol(Sigma)
+
+
+
+# Step 4(a): Generate n realizations of vector Y = A * Z
+Y <- Z %*% t(A)
+
+# Step 4(b): Estimate the coefficient r from Y
+estimated_r <- cor(Y[, 1], Y[, 2])
+print(paste("Estimated r:", estimated_r))
+
+
+
+# Step 4(c): Scatterplot of Y2 as a function of Y1
+plot(Y[, 1], Y[, 2], main = "Scatterplot of Y1 vs Y2",
+     xlab = "Y1", ylab = "Y2", col = "red", pch = 16)
+
+
+
+# Optional: Add a density plot to study the relationship more visually
+library(ggplot2)
+df_Y <- data.frame(Y1 = Y[, 1], Y2 = Y[, 2])
+ggplot(df_Y, aes(x = Y1, y = Y2)) +
+  geom_point(alpha = 0.5, color = "red") +
+  geom_density_2d(color = "blue") +
+  labs(title = "Scatterplot and Density of Y1 vs Y2", x = "Y1", y = "Y2")
