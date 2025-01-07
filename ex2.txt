@@ -1,0 +1,83 @@
+# Load necessary library
+library(ggplot2)
+
+
+
+# Step 1: Generate n1 = 1000 realizations of the uniform random variable U
+n1 <- 1000
+U <- runif(n1, min = 0, max = 1)
+
+
+
+# Step 2a: Use the inversion method to generate n1 realizations of the exponential variable X
+lambda <- 2
+X <- -log(1 - U) / lambda
+
+
+
+# Step 2b: Verify that X follows the exponential distribution
+# Compare the empirical CDF with the theoretical CDF
+ecdf_X <- ecdf(X)
+theoretical_cdf <- function(x) { 1 - exp(-lambda * x) }
+
+
+
+
+# Generate data for comparison
+x_vals <- seq(0, max(X), length.out = 100)
+empirical_cdf <- ecdf_X(x_vals)
+theoretical_cdf_vals <- theoretical_cdf(x_vals)
+
+
+
+# Plot empirical CDF vs theoretical CDF
+plot(x_vals, empirical_cdf, type = "l", col = "blue", lwd = 2, 
+     ylab = "CDF", xlab = "x", main = "Empirical vs Theoretical CDF")
+lines(x_vals, theoretical_cdf_vals, col = "red", lwd = 2)
+legend("bottomright", legend = c("Empirical CDF", "Theoretical CDF"), 
+       col = c("blue", "red"), lwd = 2)
+
+
+
+
+# Step 2c: Calculate the empirical mean of X
+empirical_mean_X <- mean(X)
+print(paste("Empirical mean of X (n1 = 1000):", empirical_mean_X))
+
+
+
+# Step 3a: Compute empirical means for n2 = 10^4, n3 = 10^5, n4 = 10^6
+sample_sizes <- c(10^4, 10^5, 10^6)
+empirical_means <- sapply(sample_sizes, function(n) {
+  U_sample <- runif(n, min = 0, max = 1)
+  X_sample <- -log(1 - U_sample) / lambda
+  mean(X_sample)
+})
+
+
+
+# Print empirical means
+names(empirical_means) <- sample_sizes
+print(empirical_means)
+
+# Step 3b: Plot the evolution of the empirical mean as a function of sample size
+sample_sizes_full <- c(n1, sample_sizes)
+empirical_means_full <- c(empirical_mean_X, empirical_means)
+
+df <- data.frame(SampleSize = sample_sizes_full, EmpiricalMean = empirical_means_full)
+ggplot(df, aes(x = SampleSize, y = EmpiricalMean)) +
+  geom_line(color = "blue") +
+  geom_point(color = "red") +
+  scale_x_log10() +
+  labs(title = "Evolution of Empirical Mean vs Sample Size",
+       x = "Sample Size (log scale)", y = "Empirical Mean") +
+  geom_hline(yintercept = 1 / lambda, linetype = "dashed", color = "green") +
+  annotate("text", x = min(sample_sizes_full), y = 1 / lambda, 
+           label = "Theoretical Mean (1/lambda)", hjust = 0, vjust = -1)
+
+
+
+# Step 3c: Interpretation
+# The empirical mean converges to the theoretical mean (1/lambda = 0.5) as the sample size increases.
+# This is due to the Law of Large Numbers, which states that the sample mean approaches
+# the population mean as the sample size grows.

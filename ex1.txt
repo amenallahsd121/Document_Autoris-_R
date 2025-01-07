@@ -50,3 +50,5 @@ sim_t <- rCopula(1000, cop_t)
 par(mfrow = c(1, 2))
 plot(sim_gauss, main = "Copule Gaussienne", col = "blue", pch = 20)
 plot(sim_t, main = "Copule de Student", col = "red", pch = 20)
+
+
