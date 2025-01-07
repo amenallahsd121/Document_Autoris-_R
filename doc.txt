@@ -1,1 +1,51 @@
-test
+
+1/
+
+# Simulation d'une variable exponentielle
+set.seed(123) # Fixer une graine pour la reproductibilité
+lambda <- 2 # Paramètre de la loi exponentielle
+U <- runif(1000) # Génère 1000 variables uniformes
+X <- -log(1 - U) / lambda # Transformation par inversion
+
+# Vérification graphique
+hist(X, probability = TRUE, col = "lightblue", main = "Histogramme de X")
+curve(lambda * exp(-lambda * x), col = "red", lwd = 2, add = TRUE)
+
+
+
+2/
+
+# Test de Kolmogorov-Smirnov pour comparer à une loi exponentielle
+ks.test(X, "pexp", rate = lambda)
+
+
+
+3/
+
+# Création d'une matrice symétrique définie positive
+A <- matrix(c(4, 2, 2, 3), nrow = 2)
+A
+
+# Décomposition de Cholesky
+L <- chol(A)
+L
+
+
+4/
+
+library(copula)
+
+# Copule gaussienne
+rho <- 0.8
+cop_gauss <- normalCopula(param = rho, dim = 2)
+sim_gauss <- rCopula(1000, cop_gauss)
+
+# Copule de Student
+nu <- 4
+cop_t <- tCopula(param = rho, dim = 2, df = nu)
+sim_t <- rCopula(1000, cop_t)
+
+# Visualisation des copules
+par(mfrow = c(1, 2))
+plot(sim_gauss, main = "Copule Gaussienne", col = "blue", pch = 20)
+plot(sim_t, main = "Copule de Student", col = "red", pch = 20)
